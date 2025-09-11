@@ -1,0 +1,24 @@
+.app {
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* wrapper for header + nav */
+.topContainer {
+  position: fixed;     /* sticks to top of screen */
+  top: 0;
+  left: 0;
+  width: 100%;         /* full screen */
+  gap: 1.5rem;        /* space between header and navbar */
+  display: flex;
+  flex-direction: column; /* stack header over navbar */
+  align-items: center;
+  z-index: 1000;
+  background: #ffff;
+  padding-bottom: 0.5rem;
+}
+
+/* main content starts after header+navbar */
+.mainContent {
+  margin-top: auto; /* adjust to header+navbar height */
+  padding: 1rem 2rem;
+}

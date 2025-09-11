@@ -1,0 +1,33 @@
+.navbar {
+    width: 70%;
+    background: #ececf0;
+
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+
+    border-radius: 4rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+
+    display: flex;
+    justify-content: center;
+}
+
+.navItem {
+    color: #000000;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    width: 22.4%;
+    border-radius: 4rem;
+
+    
+}
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #000000;
+}

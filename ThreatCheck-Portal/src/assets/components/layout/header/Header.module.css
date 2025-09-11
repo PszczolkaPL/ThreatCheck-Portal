@@ -1,0 +1,65 @@
+.header {
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box; /* include padding in width */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem; 
+  background-color: #ffffff;  
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.branding {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo h2 {
+  margin: 0;
+  color: #1e40af;
+}
+
+.spacer {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: flex-end; /* optional: align stats to the right */
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1e40af;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.totalChecks {
+  color: #3b82f6; /* blue */
+}
+.dangerous {
+  color: #ef4444; /* red */
+}
+.suspicious {
+  color: #f59e0b; /* orange */
+}
+.safe {
+  color: #10b981; /* green */
+}
