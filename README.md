@@ -1,21 +1,21 @@
 **Security Data Portal** is a modern web application built with **React** (frontend) and **Python** (backend) that allows users to analyze potential threats associated with **IP addresses, domains, phone numbers, email addresses, and IoT devices**.
 
-## Features
+## Funkcjonalności
 
-- **Data Input**: Manually enter data or upload files containing IPs, domains, phone numbers, or emails.
-- **Validation & Parsing**: Backend validates and parses data to ensure correct format.
-- **Threat Checking via Free APIs**:
-  - **IP**: AbuseIPDB, APIVoid IP Reputation, Antideo IP Reputation
-  - **Domains**: VirusTotal, APIVoid Domain Reputation, WhoisXML Domain Reputation
-  - **Phone numbers**: NumVerify, IPQualityScore Phone Lookup, NumlookupAPI
-  - **Emails**: Email verification and disposable address detection
-  - **IoT devices**: Detection and vulnerability check
-- **Results Display**: Interactive table or window with filtering, searching, and sorting.
-- **Export Options**: Download results as JSON, TXT, or CSV.
-- **Additional Features**: Copy to clipboard, save/restore sessions, configure parser settings.
-- **UI**: Modern, responsive, and intuitive design with real-time visualizations.
+- **Wprowadzanie danych**: ręczne wpisywanie danych lub wgrywanie plików zawierających IP, domeny, numery telefonów lub e-maile.  
+- **Walidacja i parsowanie**: backend sprawdza poprawność danych i przygotowuje je do analizy.  
+- **Sprawdzanie zagrożeń za pomocą darmowych API**:  
+  - **IP**: AbuseIPDB, APIVoid IP Reputation, Antideo IP Reputation  
+  - **Domeny**: VirusTotal, APIVoid Domain Reputation, WhoisXML Domain Reputation  
+  - **Numery telefonów**: NumVerify, IPQualityScore Phone Lookup, NumlookupAPI  
+  - **E-maile**: weryfikacja adresów i wykrywanie tymczasowych skrzynek  
+  - **Urządzenia IoT**: wykrywanie urządzeń w sieci i sprawdzanie potencjalnych zagrożeń  
+- **Wyświetlanie wyników**: interaktywna tabela lub okno z wynikami, możliwość filtrowania, wyszukiwania i sortowania.  
+- **Opcje eksportu**: pobieranie wyników w formatach JSON, TXT lub CSV.  
+- **Dodatkowe funkcje**: kopiowanie do schowka, zapis i przywracanie sesji, konfiguracja parsera.  
+- **UI**: nowoczesny, responsywny i intuicyjny design z wizualizacjami wyników w czasie rzeczywistym.
 
-## Architecture
+## Architektura
 
-- **Frontend**: React, handles user input, dynamic display, and interactions.
-- **Backend**: Python, manages API requests, aggregates results, handles errors, and returns structured data to frontend.
+- **Frontend**: React – obsługuje wprowadzanie danych, dynamiczne wyświetlanie wyników oraz interakcje użytkownika.  
+- **Backend**: Python – zarządza zapytaniami do API, agreguje wyniki, obsługuje błędy i zwraca ustrukturyzowane dane do frontendu.
