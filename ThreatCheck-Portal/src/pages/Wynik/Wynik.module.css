@@ -1,0 +1,13 @@
+.main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  .grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columns */
+    grid-template-rows: auto;       /* 1 row */
+    gap: 1rem;
+    width: 100%;
+  }

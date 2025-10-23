@@ -1,21 +1,22 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styles from "./NavBar.module.css";
 
 const navItems = [
-    { label: "Sprawdzanie", href: "#" },
-    { label: "Wynik", href: "#" },
-    { label: "Eksport", href: "#" },
-    { label: "Konfiguracja", href: "#" },
+  { label: "Sprawdzanie", path: "/sprawdzanie" },
+  { label: "Wynik", path: "/wynik" },
+  { label: "Eksport", path: "/eksport" },
+  { label: "Konfiguracja", path: "/konfiguracja" },
 ];
 
 const NavBar: React.FC = () => (
-        <nav className={styles.navbar}>
-            {navItems.map((item) => (
-                <a key={item.label} href={item.href} className={styles.navItem}>
-                    {item.label}
-                </a>
-            ))}
-        </nav>
-    );
+  <nav className={styles.navbar}>
+    {navItems.map((item) => (
+      <Link key={item.label} to={item.path} className={styles.navItem}>
+        {item.label}
+      </Link>
+    ))}
+  </nav>
+);
 
 export default NavBar;
