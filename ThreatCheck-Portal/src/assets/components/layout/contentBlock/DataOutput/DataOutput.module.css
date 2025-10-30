@@ -1,0 +1,55 @@
+.container {
+  background-color: #4b4b4b;
+  padding: 20px;
+  border-radius: 0.75rem;
+  color: #eceff1;
+  height: 40rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  scroll-behavior: smooth;
+}
+
+.codeBlock::-webkit-scrollbar {
+  width: 6px;
+}
+
+.codeBlock::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.codeBlock::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.codeBlock::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.codeBlock {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+
+.heading {
+  color: #ffffff;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.codeBlock {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 10px;
+}
+
+.codeBlock span:hover {
+  background-color: #333;
+  transition: background-color 0.3s ease;
+}

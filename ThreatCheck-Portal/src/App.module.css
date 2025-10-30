@@ -1,5 +1,5 @@
 .app {
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* wrapper for header + nav */
@@ -15,4 +15,7 @@
     z-index: 1000;
     background: #ffff;  
     padding-bottom: 0.5rem;
+}
+.main{
+  margin-top: 11rem;
 }

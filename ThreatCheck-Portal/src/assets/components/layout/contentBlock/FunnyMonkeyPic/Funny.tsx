@@ -1,10 +1,11 @@
 import React from 'react';
 import styles from './Funny.module.css';
+import cat from './cat.png'
 
 const DataInput: React.FC = () => {
   return (
     <div className={styles.container}>
-        <img src="ThreatCheck-Portal\public\pictures\cat.png" alt="Kot" />
+        <img src={cat} alt="Kot" />
     </div>
   );
 };

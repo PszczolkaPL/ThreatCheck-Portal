@@ -1,13 +1,13 @@
 import React from "react";
 import styles from "./Wynik.module.css";
-import DataInput from "../../assets/components/layout/contentBlock/DataInput/DataInput";
+import Funny from "../../assets/components/layout/contentBlock/FunnyMonkeyPic/Funny";
+
 
 const Wynik: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.grid}>
-        <DataInput />
-        <DataInput />
+        <Funny />
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ const Sprawdzanie: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.grid}>
         <DataInput />
-        <DataInput />
       </div>
     </div>
   );
