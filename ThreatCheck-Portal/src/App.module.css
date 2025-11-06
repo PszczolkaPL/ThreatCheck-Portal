@@ -13,9 +13,9 @@
     flex-direction: column;
     align-items: center;
     z-index: 1000;
-    background: #ffff;  
+    background: #ffffff;
     padding-bottom: 0.5rem;
 }
 .main{
-  margin-top: 11rem;
+  margin-top: 12rem;
 }

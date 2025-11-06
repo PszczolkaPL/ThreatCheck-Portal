@@ -5,7 +5,7 @@ import NavBar from "./assets/components/layout/navbar/NavBar";
 import Sprawdzanie from "./pages/Sprawdzanie/Sprawdzanie";
 import Wynik from "./pages/Wynik/Wynik";
 import Eksport from "./pages/Eksport/Eksport";
-import Konfiguracja from "./pages/Konfiguracja/Konfiguracja";
+import Konfiguracja from "./pages/Ustawienia/Ustawienia";
 
 function App() {
   return (
@@ -20,8 +20,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Sprawdzanie />} />
             <Route path="/sprawdzanie" element={<Sprawdzanie />} />
-            <Route path="/wynik" element={<Wynik />} />
             <Route path="/eksport" element={<Eksport />} />
+            <Route path="/wynik" element={<Wynik />} />
             <Route path="/konfiguracja" element={<Konfiguracja />} />
           </Routes>
       </main>
