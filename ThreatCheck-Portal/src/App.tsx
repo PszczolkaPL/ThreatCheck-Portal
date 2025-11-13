@@ -15,7 +15,7 @@ function App() {
         <Header />
         <NavBar />
       </header>
-      
+
       <main className={styles.main}>
           <Routes>
             <Route path="/" element={<Sprawdzanie />} />

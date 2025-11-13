@@ -5,6 +5,9 @@ import os
 from pydantic import BaseModel
 from typing import List
 import ipaddress
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -22,8 +25,8 @@ class CheckRequest(BaseModel):
     data_type: str  # e.g., "ip"
 
 ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
-ABUSEIPDB_KEY = "f7d7dc4638a9ccc1026929afe2c1b2d4af4d1553fa55e17684e19449559b2f3b86b1c89d3c3a89f3"
-VT_API_KEY = "8b6c9324dadfed8304b59bc66ef9a83ceadbe66cf4cf430673ef1c472d463742"
+ABUSEIPDB_KEY = os.getenv("ABUSEIPDB_KEY")
+VT_API_KEY = os.getenv("VT_API_KEY")
 VT_URL = "https://www.virustotal.com/api/v3/domains"
 VT_URL_SUBMIT = "https://www.virustotal.com/api/v3/urls"
 VT_ANALYSES_URL = "https://www.virustotal.com/api/v3/analyses"

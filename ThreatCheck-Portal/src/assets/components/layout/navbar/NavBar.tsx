@@ -5,7 +5,7 @@ import styles from "./NavBar.module.css";
 const navItems = [
   { label: "Sprawdzanie", path: "/sprawdzanie" },
   { label: "Eksport", path: "/eksport" },
-  { label: "Wynik", path: "/wynik" },
+  // { label: "Wynik", path: "/wynik" },
   { label: "Konfiguracja", path: "/konfiguracja" },
 ];
 

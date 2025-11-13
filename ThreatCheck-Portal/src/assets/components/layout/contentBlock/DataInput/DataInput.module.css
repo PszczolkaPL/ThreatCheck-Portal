@@ -37,6 +37,10 @@
   background-color: #f9fafb;
 }
 
+.select:hover{
+  border-color: #9ca3af;
+}
+
 .dropzoneWrapper {
   display: flex;
   justify-content: center;
@@ -55,6 +59,9 @@
   background-color: #f9fafb;
   cursor: pointer;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.dropzone:hover{
+  border-color: #9ca3af;
 }
 
 .dragOver {
@@ -106,10 +113,13 @@
   resize: vertical;
   max-height: 300px;
 }
+.textarea:hover{
+  border-color: #9ca3af;
+}
 
 .textarea:focus {
   outline: none;
-  border-color: #cbd5e1;
+  border-color: #9ca3af;
   box-shadow: 0 0 0 1px #cbd5e1;
 }
 
@@ -128,10 +138,14 @@
   color: #111827;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .button:hover {
   background-color: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .alert {

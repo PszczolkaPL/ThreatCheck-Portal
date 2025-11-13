@@ -6,7 +6,7 @@ interface DataInputProps {
 }
 
 const DataInput: React.FC<DataInputProps> = ({ onCheck }) => {
-  const [dataType, setDataType] = useState('');
+  const [dataType, setDataType] = useState('autodetect');
   const [textareaValue, setTextareaValue] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -14,7 +14,11 @@ const DataInput: React.FC<DataInputProps> = ({ onCheck }) => {
 
   const handleCheck = () => {
     const trimmed = textareaValue.trim();
-    if (!dataType || !trimmed) return;
+    if (!dataType || !trimmed) {
+      setModalMessage('Wybierz typ danych i wprowadź dane do sprawdzenia.');
+      setShowModal(true);
+      return;
+    }
 
     const data = trimmed
       .split(/[\n,;]+/)
