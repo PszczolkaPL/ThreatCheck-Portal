@@ -5,7 +5,7 @@ import cat from './cat.png'
 const DataInput: React.FC = () => {
   return (
     <div className={styles.container}>
-        <h1>Coming soon...</h1>
+        <h1>Wkrótce...</h1>
         <img src={cat} alt="Kot" />
     </div>
   );

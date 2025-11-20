@@ -9,7 +9,7 @@ const Sprawdzanie: React.FC = () => {
   const handleCheck = async (data: string[], dataType: string) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navigate('/eksport', { state: { results: { error: 'Please log in to check data' } } });
+      navigate('/eksport', { state: { results: { error: 'Zaloguj się, aby sprawdzić dane' } } });
       return;
     }
     try {

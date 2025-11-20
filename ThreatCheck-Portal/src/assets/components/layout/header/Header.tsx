@@ -13,6 +13,8 @@ const Header: React.FC = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,11 +48,19 @@ const Header: React.FC = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setIsDropdownOpen(false);
+    setSuccess("Wylogowano pomyślnie!");
+    setTimeout(() => setSuccess(""), 3000);
+  };
+
+  const showSuccess = (message: string) => {
+    setSuccess(message);
+    setTimeout(() => setSuccess(""), 3000);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:8000/login", {
         method: "POST",
@@ -64,12 +74,15 @@ const Header: React.FC = () => {
         setIsLoginModalOpen(false);
         setLoginUsername("");
         setLoginPassword("");
+        showSuccess("Zalogowano pomyślnie!");
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || "Login failed");
+        setError(errorData.detail || "Logowanie nie powiodło się");
       }
     } catch (err) {
-      setError("Network error");
+      setError("Błąd sieci");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,9 +90,10 @@ const Header: React.FC = () => {
     e.preventDefault();
     setError("");
     if (signupPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Hasła nie pasują");
       return;
     }
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:8000/signup", {
         method: "POST",
@@ -94,12 +108,15 @@ const Header: React.FC = () => {
         setSignupUsername("");
         setSignupPassword("");
         setConfirmPassword("");
+        showSuccess("Zarejestrowano pomyślnie!");
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || "Signup failed");
+        setError(errorData.detail || "Rejestracja nie powiodła się");
       }
     } catch (err) {
-      setError("Network error");
+      setError("Błąd sieci");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -133,6 +150,8 @@ const Header: React.FC = () => {
         )}
       </div>
 
+      {success && <div className={styles.success}>{success}</div>}
+
       {/* Login Modal */}
       {isLoginModalOpen && (
         <div className={styles.modal}>
@@ -158,8 +177,10 @@ const Header: React.FC = () => {
                 required
               />
               <div className={styles.buttonGroup}>
-                <button type="submit">Zaloguj</button>
-                <button type="button" onClick={closeModals}>Anuluj</button>
+                <button type="submit" disabled={isLoading}>
+                  {isLoading ? "Logowanie..." : "Zaloguj"}
+                </button>
+                <button type="button" onClick={closeModals} disabled={isLoading}>Anuluj</button>
               </div>
             </form>
             <p>Nie masz konta?
@@ -202,8 +223,10 @@ const Header: React.FC = () => {
                 required
               />
               <div className={styles.buttonGroup}>
-                <button type="submit">Zarejestruj</button>
-                <button type="button" onClick={closeModals}>Anuluj</button>
+                <button type="submit" disabled={isLoading}>
+                  {isLoading ? "Rejestrowanie..." : "Zarejestruj"}
+                </button>
+                <button type="button" onClick={closeModals} disabled={isLoading}>Anuluj</button>
               </div>
             </form>
             <p>Masz już konto?

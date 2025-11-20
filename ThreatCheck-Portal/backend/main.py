@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import requests
 import os
+import logging
 from pydantic import BaseModel
 from typing import List, Optional
 import ipaddress
@@ -16,6 +17,10 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 
 load_dotenv()
+
+# Logging setup
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Database setup
 DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://user:password@localhost/threatcheck_portal")
@@ -130,36 +135,49 @@ VT_ANALYSES_URL = "https://www.virustotal.com/api/v3/analyses"
 # Auth endpoints
 @app.post("/signup", response_model=Token)
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
-    # Check if user exists
-    db_user = db.query(User).filter(User.username == user.username).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+    try:
+        db_user = db.query(User).filter(User.username == user.username).first()
+        if db_user:
+            logger.warning(f"Signup attempt for existing username: {user.username}")
+            raise HTTPException(status_code=400, detail="Nazwa użytkownika jest już zajęta")
 
-    # Hash password and create user
-    hashed_password = get_password_hash(user.password)
-    db_user = User(username=user.username, password_hash=hashed_password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+        hashed_password = get_password_hash(user.password)
+        db_user = User(username=user.username, password_hash=hashed_password)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        logger.info(f"New user registered: {user.username}")
 
-    # Create access token
-    access_token = create_access_token(data={"sub": db_user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+        access_token = create_access_token(data={"sub": db_user.username})
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Signup error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Błąd serwera wewnętrznego")
 
 @app.post("/login", response_model=Token)
 async def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = authenticate_user(db, user.username, user.password)
-    if not db_user:
-        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    try:
+        db_user = authenticate_user(db, user.username, user.password)
+        if not db_user:
+            logger.warning(f"Failed login attempt for username: {user.username}")
+            raise HTTPException(status_code=401, detail="Nieprawidłowa nazwa użytkownika lub hasło")
 
-    access_token = create_access_token(data={"sub": db_user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+        logger.info(f"User logged in: {user.username}")
+        access_token = create_access_token(data={"sub": db_user.username})
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Błąd serwera wewnętrznego")
 
 # Dependency to get current user
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=401,
-        detail="Could not validate credentials",
+        detail="Nie można zweryfikować poświadczeń",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -177,57 +195,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 
 @app.post("/check")
 async def check_data(request: CheckRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-
-
-    results = []
-    for item in request.data:
-        if request.data_type == "ip":
-            params = {"ipAddress": item, "maxAgeInDays": 90}
-            headers = {"Key": ABUSEIPDB_KEY, "Accept": "application/json"}
-            response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
-            if response.status_code == 200:
-                results.append(response.json())
-            else:
-                results.append({"error": f"Failed for {item}: {response.text}"})
-        elif request.data_type == "domain":
-            url = f"{VT_URL}/{item}"
-            headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                results.append(response.json())
-            else:
-                results.append({"error": f"Failed for {item}: {response.text}"})
-        elif request.data_type == "url":
-            # Submit URL for analysis
-            headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
-            data = {"url": item}
-            submit_response = requests.post(VT_URL_SUBMIT, headers=headers, data=data)
-            if submit_response.status_code == 200:
-                submit_data = submit_response.json()
-                analysis_id = submit_data["data"]["id"]
-                # Get analysis report
-                analysis_url = f"{VT_ANALYSES_URL}/{analysis_id}"
-                analysis_response = requests.get(analysis_url, headers=headers)
-                if analysis_response.status_code == 200:
-                    analysis_data = analysis_response.json()
-                    stats = analysis_data["data"]["attributes"]["stats"]
-                    malicious = stats.get("malicious", 0)
-                    suspicious = stats.get("suspicious", 0)
-                    if malicious > 0:
-                        status = "malicious"
-                    elif suspicious > 0:
-                        status = "suspicious"
-                    else:
-                        status = "clean"
-                    results.append({"url": item, "status": status, "stats": stats})
-                else:
-                    results.append({"error": f"Failed to get analysis for {item}: {analysis_response.text}"})
-            else:
-                results.append({"error": f"Failed to submit {item}: {submit_response.text}"})
-        elif request.data_type == "autodetect":
-            try:
-                ipaddress.ip_address(item)
-                # IP, use AbuseIPDB
+    try:
+        logger.info(f"User {current_user.username} checking {len(request.data)} items of type {request.data_type}")
+        results = []
+        for item in request.data:
+            if request.data_type == "ip":
                 params = {"ipAddress": item, "maxAgeInDays": 90}
                 headers = {"Key": ABUSEIPDB_KEY, "Accept": "application/json"}
                 response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
@@ -235,9 +207,7 @@ async def check_data(request: CheckRequest, current_user: User = Depends(get_cur
                     results.append(response.json())
                 else:
                     results.append({"error": f"Failed for {item}: {response.text}"})
-            except ValueError:
-                # Treat as domain or URL, use VirusTotal
-                # For simplicity, assume domain; if URL, user should select url type
+            elif request.data_type == "domain":
                 url = f"{VT_URL}/{item}"
                 headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
                 response = requests.get(url, headers=headers)
@@ -245,22 +215,67 @@ async def check_data(request: CheckRequest, current_user: User = Depends(get_cur
                     results.append(response.json())
                 else:
                     results.append({"error": f"Failed for {item}: {response.text}"})
-        else:
-            results.append({"error": f"Unsupported data type: {request.data_type} for {item}"})
+            elif request.data_type == "url":
+                headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
+                data = {"url": item}
+                submit_response = requests.post(VT_URL_SUBMIT, headers=headers, data=data)
+                if submit_response.status_code == 200:
+                    submit_data = submit_response.json()
+                    analysis_id = submit_data["data"]["id"]
+                    analysis_url = f"{VT_ANALYSES_URL}/{analysis_id}"
+                    analysis_response = requests.get(analysis_url, headers=headers)
+                    if analysis_response.status_code == 200:
+                        analysis_data = analysis_response.json()
+                        stats = analysis_data["data"]["attributes"]["stats"]
+                        malicious = stats.get("malicious", 0)
+                        suspicious = stats.get("suspicious", 0)
+                        if malicious > 0:
+                            status = "malicious"
+                        elif suspicious > 0:
+                            status = "suspicious"
+                        else:
+                            status = "clean"
+                        results.append({"url": item, "status": status, "stats": stats})
+                    else:
+                        results.append({"error": f"Failed to get analysis for {item}: {analysis_response.text}"})
+                else:
+                    results.append({"error": f"Failed to submit {item}: {submit_response.text}"})
+            elif request.data_type == "autodetect":
+                try:
+                    ipaddress.ip_address(item)
+                    params = {"ipAddress": item, "maxAgeInDays": 90}
+                    headers = {"Key": ABUSEIPDB_KEY, "Accept": "application/json"}
+                    response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
+                    if response.status_code == 200:
+                        results.append(response.json())
+                    else:
+                        results.append({"error": f"Failed for {item}: {response.text}"})
+                except ValueError:
+                    url = f"{VT_URL}/{item}"
+                    headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
+                    response = requests.get(url, headers=headers)
+                    if response.status_code == 200:
+                        results.append(response.json())
+                    else:
+                        results.append({"error": f"Failed for {item}: {response.text}"})
+            else:
+                results.append({"error": f"Unsupported data type: {request.data_type} for {item}"})
 
-    # Save results to database
-    for i, item in enumerate(request.data):
-        if i < len(results):
-            api_response = APIResponse(
-                user_id=current_user.id,
-                data_type=request.data_type,
-                input_data=item,
-                response_data=results[i]
-            )
-            db.add(api_response)
-    db.commit()
-
-    return {"results": results}
+        for i, item in enumerate(request.data):
+            if i < len(results):
+                api_response = APIResponse(
+                    user_id=current_user.id,
+                    data_type=request.data_type,
+                    input_data=item,
+                    response_data=results[i]
+                )
+                db.add(api_response)
+        db.commit()
+        logger.info(f"User {current_user.username} completed check, saved {len(request.data)} responses")
+        return {"results": results}
+    except Exception as e:
+        logger.error(f"Check error for user {current_user.username}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Błąd serwera wewnętrznego")
 
 if __name__ == "__main__":
     import uvicorn
