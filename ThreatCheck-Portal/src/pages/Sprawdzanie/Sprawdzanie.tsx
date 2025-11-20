@@ -7,10 +7,18 @@ const Sprawdzanie: React.FC = () => {
   const navigate = useNavigate();
 
   const handleCheck = async (data: string[], dataType: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/eksport', { state: { results: { error: 'Please log in to check data' } } });
+      return;
+    }
     try {
       const response = await fetch('http://localhost:8000/check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ data, data_type: dataType })
       });
       const result = await response.json();

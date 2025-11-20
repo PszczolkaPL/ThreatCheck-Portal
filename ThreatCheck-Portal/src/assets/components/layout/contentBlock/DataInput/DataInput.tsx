@@ -136,7 +136,6 @@ const DataInput: React.FC<DataInputProps> = ({ onCheck }) => {
         </div>
 
         <div className={styles.buttonGroup}>
-          <button type="button" className={styles.button}>Przetwórz dane</button>
           <button type="button" className={styles.button} onClick={handleCheck}>Sprawdź</button>
           <button type="button" className={styles.button} onClick={handleClear}>Wyczyść</button>
         </div>
