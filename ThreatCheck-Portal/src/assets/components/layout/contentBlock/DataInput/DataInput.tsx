@@ -81,9 +81,9 @@ const DataInput: React.FC<DataInputProps> = ({ onCheck }) => {
           >
             <option value="">Wybierz typ danych do sprawdzenia</option>
             <option value="ip">IPs</option>
-            <option value="domain">Domain</option>
+            <option value="domain">Domeny</option>
             <option value="url">URLs</option>
-            <option value="autodetect">Auto Detect</option>
+            <option value="autodetect">Autowykrywanie</option>
           </select>
         </form>
 

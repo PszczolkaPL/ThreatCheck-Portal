@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
 import userpic from "./user.png";
 
@@ -22,6 +23,8 @@ const Header: React.FC = () => {
       setIsLoggedIn(true);
     }
   }, []);
+
+  const navigate = useNavigate();
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const handleLogin = () => {
@@ -137,7 +140,7 @@ const Header: React.FC = () => {
             {isLoggedIn ? (
               <>
                 <button className={styles.dropdownItem}>Statystyki</button>
-                <button className={styles.dropdownItem}>Ustawienia</button>
+                <button className={styles.dropdownItem} onClick={() => { navigate('/konfiguracja'); setIsDropdownOpen(false); }}>Ustawienia</button>
                 <button className={`${styles.dropdownItem} ${styles.logout}`} onClick={handleLogout}>Wyloguj</button>
               </>
             ) : (

@@ -11,10 +11,9 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
-from datetime import datetime
+from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -49,6 +48,25 @@ class APIResponse(Base):
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+
+# Helper functions for API checks
+def check_ip(item):
+    params = {"ipAddress": item, "maxAgeInDays": 90}
+    headers = {"Key": ABUSEIPDB_KEY, "Accept": "application/json"}
+    response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": f"Failed for {item}: {response.text}"}
+
+def check_domain(item):
+    url = f"{VT_URL}/{item}"
+    headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": f"Failed for {item}: {response.text}"}
 
 # Password hashing
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
@@ -93,9 +111,6 @@ def authenticate_user(db: Session, username: str, password: str):
 
 # Security scheme
 security = HTTPBearer()
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 app = FastAPI()
 
@@ -200,21 +215,9 @@ async def check_data(request: CheckRequest, current_user: User = Depends(get_cur
         results = []
         for item in request.data:
             if request.data_type == "ip":
-                params = {"ipAddress": item, "maxAgeInDays": 90}
-                headers = {"Key": ABUSEIPDB_KEY, "Accept": "application/json"}
-                response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
-                if response.status_code == 200:
-                    results.append(response.json())
-                else:
-                    results.append({"error": f"Failed for {item}: {response.text}"})
+                results.append(check_ip(item))
             elif request.data_type == "domain":
-                url = f"{VT_URL}/{item}"
-                headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
-                response = requests.get(url, headers=headers)
-                if response.status_code == 200:
-                    results.append(response.json())
-                else:
-                    results.append({"error": f"Failed for {item}: {response.text}"})
+                results.append(check_domain(item))
             elif request.data_type == "url":
                 headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
                 data = {"url": item}
@@ -243,33 +246,20 @@ async def check_data(request: CheckRequest, current_user: User = Depends(get_cur
             elif request.data_type == "autodetect":
                 try:
                     ipaddress.ip_address(item)
-                    params = {"ipAddress": item, "maxAgeInDays": 90}
-                    headers = {"Key": ABUSEIPDB_KEY, "Accept": "application/json"}
-                    response = requests.get(ABUSEIPDB_URL, headers=headers, params=params)
-                    if response.status_code == 200:
-                        results.append(response.json())
-                    else:
-                        results.append({"error": f"Failed for {item}: {response.text}"})
+                    results.append(check_ip(item))
                 except ValueError:
-                    url = f"{VT_URL}/{item}"
-                    headers = {"x-apikey": VT_API_KEY, "Accept": "application/json"}
-                    response = requests.get(url, headers=headers)
-                    if response.status_code == 200:
-                        results.append(response.json())
-                    else:
-                        results.append({"error": f"Failed for {item}: {response.text}"})
+                    results.append(check_domain(item))
             else:
                 results.append({"error": f"Unsupported data type: {request.data_type} for {item}"})
 
         for i, item in enumerate(request.data):
-            if i < len(results):
-                api_response = APIResponse(
-                    user_id=current_user.id,
-                    data_type=request.data_type,
-                    input_data=item,
-                    response_data=results[i]
-                )
-                db.add(api_response)
+            api_response = APIResponse(
+                user_id=current_user.id,
+                data_type=request.data_type,
+                input_data=item,
+                response_data=results[i]
+            )
+            db.add(api_response)
         db.commit()
         logger.info(f"User {current_user.username} completed check, saved {len(request.data)} responses")
         return {"results": results}
